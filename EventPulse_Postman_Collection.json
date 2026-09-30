@@ -1,0 +1,398 @@
+{
+  "info": {
+    "_postman_id": "eventpulse-collection-v1",
+    "name": "EventPulse API - Complete CRUD & Auth Collection",
+    "description": "Ready-to-import Postman collection for showcasing Full-Stack MERN CRUD, JWT Authentication, and Event Booking workflows.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "organizerToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "attendeeToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "createdEventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "registrationId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login as Organizer (Auto-saves Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('organizerToken', jsonData.token);",
+                  "    console.log('Organizer Token Saved:', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"organizer@eventpulse.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as Attendee (Auto-saves Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('attendeeToken', jsonData.token);",
+                  "    console.log('Attendee Token Saved:', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"attendee@eventpulse.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Register New User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"David Miller\",\n  \"email\": \"david@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"attendee\",\n  \"organization\": \"Independent Developer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Get Authenticated Profile (GET /me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{organizerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Events CRUD Operations",
+      "item": [
+        {
+          "name": "[CREATE] Create New Event (POST)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data._id) {",
+                  "    pm.collectionVariables.set('createdEventId', jsonData.data._id);",
+                  "    console.log('Saved createdEventId:', jsonData.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{organizerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Live Postman Demo Summit 2026\",\n  \"description\": \"Demonstrating real-time CRUD operations, Mongoose schemas, and JWT authentication to the viva examiner.\",\n  \"category\": \"Tech\",\n  \"date\": \"2026-11-20\",\n  \"time\": \"11:00 AM - 04:00 PM\",\n  \"locationType\": \"venue\",\n  \"location\": \"Convention Center Hall 3, Chicago, IL\",\n  \"capacity\": 150,\n  \"price\": 49,\n  \"tags\": [\"Viva\", \"MERN\", \"Postman\", \"REST\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events"]
+            }
+          }
+        },
+        {
+          "name": "[READ] Get All Events (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events"]
+            }
+          }
+        },
+        {
+          "name": "[READ] Search & Filter Events (GET with Query Params)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/events?category=Tech&search=AI",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "Tech"
+                },
+                {
+                  "key": "search",
+                  "value": "AI"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "[READ] Get Single Event By ID (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/{{createdEventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", "{{createdEventId}}"]
+            }
+          }
+        },
+        {
+          "name": "[UPDATE] Update Event Details (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{organizerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Live Postman Demo Summit 2026 (UPDATED)\",\n  \"price\": 79,\n  \"capacity\": 200,\n  \"status\": \"ongoing\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events/{{createdEventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", "{{createdEventId}}"]
+            }
+          }
+        },
+        {
+          "name": "[DELETE] Delete Event (DELETE)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{organizerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/{{createdEventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "events", "{{createdEventId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Booking & RSVP Operations",
+      "item": [
+        {
+          "name": "Book Ticket / RSVP for Event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data._id) {",
+                  "    pm.collectionVariables.set('registrationId', jsonData.data._id);",
+                  "    console.log('Saved registrationId:', jsonData.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{attendeeToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ticketsCount\": 2,\n  \"attendeePhone\": \"+1 (555) 987-6543\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/registrations/{{createdEventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "registrations", "{{createdEventId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get My Bookings (Attendee)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{attendeeToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/registrations/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "registrations", "my"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Booking (Restore Capacity)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{attendeeToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/registrations/{{registrationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "registrations", "{{registrationId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Event Attendee Roster (Organizer)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{organizerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/registrations/event/{{createdEventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "registrations", "event", "{{createdEventId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Health & System Check",
+      "item": [
+        {
+          "name": "Health Check (GET /api/health)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
